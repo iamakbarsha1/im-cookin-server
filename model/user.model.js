@@ -12,18 +12,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    google: {
-      id: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-      displayName: {
-        type: String,
-      },
-      photoUrl: {
-        type: String,
-      },
+    name: {
+      type: String,
+    },
+    OAuthProfiles: [],
+    OAuthTypes: [],
+    loginCount: {
+      type: Number,
     },
   },
   { timestamps: true },
