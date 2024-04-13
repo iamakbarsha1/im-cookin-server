@@ -19,7 +19,7 @@ app.use(
 );
 
 // Routes
-app.use(`/`, AuthRouter);
+app.use(`/auth`, AuthRouter);
 // app.use(`/api/post`);
 
 // Server initialization
