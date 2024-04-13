@@ -4,5 +4,6 @@ const utilsController = require("../controller/utilsController");
 
 // AuthRouter.post("/register", )
 AuthRouter.get("/status", utilsController.status);
+AuthRouter.post("/oauth", utilsController.oauth);
 
 module.exports = AuthRouter;
