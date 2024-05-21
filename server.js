@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const dbConnection = require("./db/db");
 const AuthRouter = require("./router/authRouter");
+const StreakRouter = require("./router/streaksRouter");
 const logger = require("./middleware/logger.middleware");
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(
 
 // Routes
 app.use(`/auth`, AuthRouter);
+app.use(`/streak`, StreakRouter);
 // app.use(`/api/post`);
 
 // Server initialization

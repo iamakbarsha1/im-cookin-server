@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    name: {
+    firstName: {
+      typr: String,
+    },
+    lastName: {
       type: String,
     },
     OAuthProfiles: [],
@@ -21,7 +24,16 @@ const userSchema = new mongoose.Schema(
       type: Number,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    virtuals: {
+      fullName: {
+        get() {
+          return this.firstName + " " + this.lastName;
+        },
+      },
+    },
+  },
   { collection: "user" }
 );
 

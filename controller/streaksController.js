@@ -1,3 +1,4 @@
+const Streak = require("../model/streaks.model");
 const arr = [
   {
     streakName: "Gym",
@@ -12,20 +13,50 @@ const arr = [
 ];
 
 exports.getStreaks = (req, res) => {
-  return res.status(200).json({
-    code: 200,
-    status: "Good!",
-    reqDate: arr,
-  });
+  Streak.find()
+    .then((dbRes) => {
+      return res.status(200).json({
+        code: 200,
+        status: "Good!",
+        description: "All Streaks",
+        data: dbRes,
+      });
+    })
+    .catch((err) => {
+      return res.status(400).json({
+        code: 400,
+        key: "Error",
+        description: "Failed to retrive streaks!",
+      });
+    });
+
+  // return res.status(200).json({
+  //   code: 200,
+  //   status: "Good!",
+  //   reqDate: arr,
+  // });
 };
 
 exports.addStreak = (req, res) => {
-  const data = req.body.payload;
-  const email = req.body.payload.email; // req.body.payload._id
+  const data = req.body;
+  // const email = req.body.payload.email; // req.body.payload._id
+  console.log("req.body" + JSON.stringify(req.body));
 
-  return res.status(200).json({
-    // code: 200,
-    // status: "Good!",
-    // reqDate: arr,
-  });
+  Streak(data)
+    .save()
+    .then((dbRes) => {
+      console.log("dbRes: " + dbRes);
+      return res.status(200).json({
+        code: 200,
+        status: "Streak Added!",
+        reqData: dbRes,
+      });
+    })
+    .catch((err) => {
+      return res.status(400).json({
+        code: 400,
+        status: "Oops! Issue occurred while adding a streak.",
+        reqData: err,
+      });
+    });
 };
