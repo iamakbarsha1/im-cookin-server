@@ -42,21 +42,32 @@ exports.addStreak = (req, res) => {
   // const email = req.body.payload.email; // req.body.payload._id
   console.log("req.body" + JSON.stringify(req.body));
 
-  Streak(data)
-    .save()
-    .then((dbRes) => {
-      console.log("dbRes: " + dbRes);
+  const streakName = data.streakName;
+
+  Streak.findOne({ streakName: streakName }).then((dbRes) => {
+    if (dbRes !== null) {
       return res.status(200).json({
         code: 200,
-        status: "Streak Added!",
-        reqData: dbRes,
+        status: "Streak already existing!",
       });
-    })
-    .catch((err) => {
-      return res.status(400).json({
-        code: 400,
-        status: "Oops! Issue occurred while adding a streak.",
-        reqData: err,
-      });
-    });
+    } else {
+      Streak(data)
+        .save()
+        .then((dbRes) => {
+          console.log("dbRes: " + dbRes);
+          return res.status(200).json({
+            code: 200,
+            status: "Streak Added!",
+            reqData: dbRes,
+          });
+        })
+        .catch((err) => {
+          return res.status(400).json({
+            code: 400,
+            status: "Oops! Issue occurred while adding a streak.",
+            reqData: err,
+          });
+        });
+    }
+  });
 };
