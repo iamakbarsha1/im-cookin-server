@@ -90,9 +90,10 @@ exports.oauth = (req, res) => {
       }
     })
     .catch((err) => {
-      console.log("Error", err);
+      console.error("Error", err);
       res.json({
         key: "Error",
+        error: err.toString(),
         description: "Error - @POST/oauth",
       });
     });

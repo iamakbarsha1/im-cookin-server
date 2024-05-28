@@ -1,46 +1,43 @@
 const Streak = require("../model/streaks.model");
-const arr = [
-  {
-    streakName: "Gym",
-    startDate: Date("00-00-0000"),
-    count: 700, // How shall we work on this caz we have tofind the exact count based on the start date
-  },
-  {
-    streakName: "Jog",
-    startDate: Date("11-11-1111"),
-    count: 70, // How shall we work on this caz we have tofind the exact count based on the start date
-  },
-];
 
-exports.getStreaks = (req, res) => {
-  Streak.find()
-    .then((dbRes) => {
-      return res.status(200).json({
-        code: 200,
-        status: "Good!",
-        description: "All Streaks",
-        data: dbRes,
-      });
-    })
-    .catch((err) => {
-      return res.status(400).json({
-        code: 400,
-        key: "Error",
-        description: "Failed to retrive streaks!",
-      });
+exports.getStreaks = async (req, res) => {
+  const { page, limit, startIndex, endIndex } = req.pagination;
+
+  try {
+    const totalDocuments = await Streak.countDocuments(); // Retrieve the total count of documents
+    const totalPages = Math.ceil(totalDocuments / limit); // Calculate the total number of pages
+
+    // Ensure the page number is within the valid range
+    if (page > totalPages) {
+      return res.status(400).send({ error: "Page number exceeds total pages" });
+    }
+
+    // Fetch paginated results from the database
+    const paginatedArr = await Streak.find().skip(startIndex).limit(limit);
+
+    return res.status(200).json({
+      code: 200,
+      status: "Good!",
+      description: "All Streaks",
+      data: paginatedArr,
+      currentPage: page,
+      totalPages: totalPages,
+      totalRecords: totalDocuments,
     });
-
-  // return res.status(200).json({
-  //   code: 200,
-  //   status: "Good!",
-  //   reqDate: arr,
-  // });
+  } catch (err) {
+    console.error("Error fetching streaks: ->" + err);
+    return res.status(500).json({
+      code: 500,
+      key: "Error",
+      error: err.toString(),
+      description: "Failed to retrieve streaks!",
+    });
+  }
 };
 
 exports.addStreak = (req, res) => {
   const data = req.body;
   // const email = req.body.payload.email; // req.body.payload._id
-  console.log("req.body" + JSON.stringify(req.body));
 
   const streakName = data.streakName;
 
@@ -54,7 +51,6 @@ exports.addStreak = (req, res) => {
       Streak(data)
         .save()
         .then((dbRes) => {
-          console.log("dbRes: " + dbRes);
           return res.status(200).json({
             code: 200,
             status: "Streak Added!",
