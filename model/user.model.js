@@ -13,10 +13,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     firstName: {
-      typr: String,
+      type: String,
     },
     lastName: {
       type: String,
+    },
+    dob: {
+      type: Date,
     },
     OAuthProfiles: [],
     OAuthTypes: [],

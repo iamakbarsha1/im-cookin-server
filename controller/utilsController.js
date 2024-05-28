@@ -98,3 +98,31 @@ exports.oauth = (req, res) => {
       });
     });
 };
+
+exports.register = (req, res) => {
+  const data = req.body;
+
+  const { firstName, lastName, username, email, dob } = req.body;
+
+  // {"firstName":"Akbarsha","lastName":"Salam","username":"iamakbarsha1","email":"iamakbarsha1@gmail.com","dob":"08-10-2001"}
+
+  console.log("data -> " + JSON.stringify(data));
+
+  User.findOne({ email: email }).then((dbRes) => {});
+
+  // if (email)
+  User({
+    firstName,
+    lastName,
+    username,
+    email,
+    dob,
+  })
+    .save()
+    .then((dbRes) => {
+      console.log("dbRes -> " + dbRes);
+    })
+    .catch((err) => {
+      console.log("err -> " + err);
+    });
+};
