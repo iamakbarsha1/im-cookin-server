@@ -75,10 +75,10 @@ exports.oauth = (req, res) => {
         })
           .save()
           .then((dbRes) => {
-            return res.status(200).json({
-              code: 200,
+            return res.status(201).json({
+              code: 201,
               data: dbRes,
-              description: "New user, User created!",
+              description: "New user created!",
             });
           })
           .catch((err) => {
@@ -99,30 +99,45 @@ exports.oauth = (req, res) => {
     });
 };
 
-exports.register = (req, res) => {
-  const data = req.body;
-
+exports.register = async (req, res) => {
   const { firstName, lastName, username, email, dob } = req.body;
 
-  // {"firstName":"Akbarsha","lastName":"Salam","username":"iamakbarsha1","email":"iamakbarsha1@gmail.com","dob":"08-10-2001"}
+  try {
+    const [emailUnique, usernameUnique] = await Promise.all([
+      User.findOne({ email }),
+      User.findOne({ username }),
+    ]);
 
-  console.log("data -> " + JSON.stringify(data));
+    // Validate the existing email
+    if (emailUnique) {
+      return res.status(400).json({
+        code: 400,
+        description: "Email already exists!",
+      });
+    }
 
-  User.findOne({ email: email }).then((dbRes) => {});
+    // Validate the existing username
+    if (usernameUnique) {
+      return res.status(400).json({
+        code: 400,
+        description: "Username already exists!",
+      });
+    }
 
-  // if (email)
-  User({
-    firstName,
-    lastName,
-    username,
-    email,
-    dob,
-  })
-    .save()
-    .then((dbRes) => {
-      console.log("dbRes -> " + dbRes);
-    })
-    .catch((err) => {
-      console.log("err -> " + err);
+    const newUser = new User({ firstName, lastName, username, email, dob });
+    const savedUser = await newUser.save();
+
+    return res.status(201).json({
+      code: 201,
+      // data: savedUser,
+      description: "New user created!",
     });
+  } catch (err) {
+    return res.status(500).json({
+      code: 500,
+      key: "Error",
+      error: err.toString(),
+      description: "Error creating new user - @POST/register",
+    });
+  }
 };
