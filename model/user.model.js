@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,6 +22,9 @@ const userSchema = new mongoose.Schema(
     dob: {
       type: Date,
     },
+    password: {
+      type: String,
+    },
     OAuthProfiles: [],
     OAuthTypes: [],
     loginCount: {
@@ -39,6 +43,23 @@ const userSchema = new mongoose.Schema(
   },
   { collection: "user" }
 );
+
+// Pre-save hook to hash the password
+userSchema.pre("save", function (next) {
+  const user = this;
+
+  // only hash the password if it has been modified (or is new)
+  if (!user.isModified("password")) return next();
+
+  // Generate a salt and hash the password
+  bcrypt.hash(user.password, 8, (err, hash) => {
+    if (err) return next(err);
+
+    // Replace the plain text with the hash
+    user.password = hash;
+    next();
+  });
+});
 
 const User = mongoose.model("User", userSchema);
 

@@ -2,10 +2,10 @@ const express = require("express");
 const AuthRouter = express.Router();
 const utilsController = require("../controller/utilsController");
 
+/** Auth Methods */
 AuthRouter.get("/status", utilsController.status);
 AuthRouter.post("/oauth", utilsController.oauth);
 
-/** Auth Methods */
 /**
  * @openapi
  * '/auth/register':

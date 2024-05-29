@@ -27,7 +27,7 @@ const { paginationMiddleware } = require("../middleware/pagination.middleware");
  *           default: 10
  *           description: The number of items per page.
  *     responses:
- *      '200':
+ *      200:
  *          description: A paginated list of streaks
  *          content:
  *            application/json:

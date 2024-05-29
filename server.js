@@ -14,8 +14,8 @@ app.use(express.json());
 // app.use(logger);
 app.use(
   cors({
-    origin: "http://localhost:3000", // Client URL
-    methods: "GET, POST, PUT, DELETE",
+    origin: ["http://localhost:3000", "http://localhost:7000"], // Client URL
+    methods: "GET, POST, PUT, DELETE", // Allowed methods
     credentials: true,
   })
 );

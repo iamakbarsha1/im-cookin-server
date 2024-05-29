@@ -100,7 +100,7 @@ exports.oauth = (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { firstName, lastName, username, email, dob } = req.body;
+  const { firstName, lastName, username, email, password, dob } = req.body;
 
   try {
     const [emailUnique, usernameUnique] = await Promise.all([
@@ -124,7 +124,14 @@ exports.register = async (req, res) => {
       });
     }
 
-    const newUser = new User({ firstName, lastName, username, email, dob });
+    const newUser = new User({
+      firstName,
+      lastName,
+      username,
+      email,
+      password, // This will be hashed by the pre-save hook
+      dob,
+    });
     const savedUser = await newUser.save();
 
     return res.status(201).json({
