@@ -5,6 +5,7 @@ const dbConnection = require("./db/db");
 const AuthRouter = require("./router/authRouter");
 const StreakRouter = require("./router/streaksRouter");
 const logger = require("./middleware/logger.middleware");
+const { swaggerDocs } = require("./swagger");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(
     credentials: true,
   })
 );
+app.disable("x-powered-by"); // less hackers know about our stack
 
 // Routes
 app.use(`/auth`, AuthRouter);
@@ -25,12 +27,11 @@ app.use(`/streak`, StreakRouter);
 // app.use(`/api/post`);
 
 // Server initialization
-app.listen(process.env.PORT, (res, err) => {
+const port = process.env.PORT;
+app.listen(port, (res, err) => {
   if (err) return logger.error("Server down! " + err);
-  else
-    return logger.info(
-      `Server running on http://localhost:${process.env.PORT}`
-    );
+  else swaggerDocs(app, port);
+  return logger.info(`Server running on http://localhost:${port}`);
 });
 
 dbConnection(); // Database connection
