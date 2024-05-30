@@ -26,77 +26,73 @@ exports.status = (req, res) => {
 //   jti: '956b566443d37e48dffa487e14f87f627a7998a1'
 // }
 
-exports.oauth = (req, res) => {
-  // console.log("REQQQ --> ", req.body);
+exports.oauth = async (req, res) => {
+  try {
+    const token = req.body.credential;
+    const decoded = jwt.decode(token);
 
-  const token = req.body.credential;
-  const decoded = jwt.decode(token);
+    if (
+      decoded.iss.includes("google") &&
+      decoded.azp.includes("googleusercontent") &&
+      decoded.aud.includes("googleusercontent")
+    ) {
+      decoded.OAuthType = "google";
+    } else {
+      decoded.OAuthType = "github";
+    }
 
-  if (
-    decoded.iss.includes("google") &&
-    decoded.azp.includes("googleusercontent") &&
-    decoded.aud.includes("googleusercontent")
-  ) {
-    decoded.OAuthType = "google";
-  } else {
-    decoded.OAuthType = "github";
-  }
+    const email = decoded.email;
 
-  const email = decoded.email;
+    const dbRes = await User.findOne({ email: email });
 
-  User.findOne({ email: email })
-    .then((dbRes) => {
-      if (dbRes !== null) {
-        User.updateOne(
+    if (dbRes !== null) {
+      try {
+        await User.updateOne(
           { email: email },
           { $set: { loginCount: dbRes.loginCount + 1 } }
-        )
-          .then((dbRes2) => {
-            return res.status(200).json({
-              code: 200,
-              // data: dbRes,
-              description: "Existing User, Login count Incremented!",
-            });
-          })
-          .catch((err) => {
-            res.json({
-              key: "Error",
-              description: "Error - @POST/oauth - Existing User",
-            });
-          });
-      } else {
-        User({
+        );
+        return res.status(200).json({
+          code: 200,
+          description: "Existing User, Login count Incremented!",
+        });
+      } catch (err) {
+        return res.json({
+          key: "Error",
+          description: "Error - @POST/oauth - Existing User",
+        });
+      }
+    } else {
+      try {
+        const newUser = new User({
           username: decoded.email,
           email: email,
           name: decoded.name,
           OAuthProfiles: decoded,
           OAuthTypes: decoded.OAuthType,
           loginCount: 1,
-        })
-          .save()
-          .then((dbRes) => {
-            return res.status(201).json({
-              code: 201,
-              data: dbRes,
-              description: "New user created!",
-            });
-          })
-          .catch((err) => {
-            res.json({
-              key: "Error",
-              description: "Error - @POST/oauth - New User",
-            });
-          });
+        });
+
+        const dbRes2 = await newUser.save();
+        return res.status(201).json({
+          code: 201,
+          data: dbRes2,
+          description: "New user created!",
+        });
+      } catch (err) {
+        return res.json({
+          key: "Error",
+          description: "Error - @POST/oauth - New User",
+        });
       }
-    })
-    .catch((err) => {
-      console.error("Error", err);
-      res.json({
-        key: "Error",
-        error: err.toString(),
-        description: "Error - @POST/oauth",
-      });
+    }
+  } catch (err) {
+    console.error("Error", err);
+    return res.json({
+      key: "Error",
+      error: err.toString(),
+      description: "Error - @POST/oauth",
     });
+  }
 };
 
 exports.register = async (req, res) => {
@@ -145,6 +141,31 @@ exports.register = async (req, res) => {
       key: "Error",
       error: err.toString(),
       description: "Error creating new user - @POST/register",
+    });
+  }
+};
+
+exports.login = async (req, res) => {
+  const { username, passowrd } = req.body;
+
+  const [isEmailExist, isUsernameExist] = await Promise.all([
+    User.findOne({ email }),
+    User.findOne({ username }),
+  ]);
+
+  if (isEmailExist) {
+  }
+  // const dbRes = await User.findOne({ email });
+
+  console.log("dbRes -> " + JSON.stringify(dbRes));
+
+  try {
+  } catch (err) {
+    return res.status(500).json({
+      code: 500,
+      key: "Error",
+      error: err.toString(),
+      description: "Error logging user - @POST/login",
     });
   }
 };

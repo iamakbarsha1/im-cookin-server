@@ -40,5 +40,6 @@ AuthRouter.post("/oauth", utilsController.oauth);
  *        description: Server Error
  */
 AuthRouter.post("/register", utilsController.register);
+AuthRouter.post("/login", utilsController.login);
 
 module.exports = AuthRouter;
