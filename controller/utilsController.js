@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
 const User = require("../model/user.model");
 
 exports.status = (req, res) => {
@@ -56,7 +58,8 @@ exports.oauth = async (req, res) => {
           description: "Existing User, Login count Incremented!",
         });
       } catch (err) {
-        return res.json({
+        return res.status(500).json({
+          code: 500,
           key: "Error",
           description: "Error - @POST/oauth - Existing User",
         });
@@ -79,7 +82,8 @@ exports.oauth = async (req, res) => {
           description: "New user created!",
         });
       } catch (err) {
-        return res.json({
+        return res.status(500).json({
+          code: 500,
           key: "Error",
           description: "Error - @POST/oauth - New User",
         });
@@ -87,7 +91,8 @@ exports.oauth = async (req, res) => {
     }
   } catch (err) {
     console.error("Error", err);
-    return res.json({
+    return res.status(500).json({
+      code: 500,
       key: "Error",
       error: err.toString(),
       description: "Error - @POST/oauth",
@@ -146,26 +151,93 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { username, passowrd } = req.body;
-
-  const [isEmailExist, isUsernameExist] = await Promise.all([
-    User.findOne({ email }),
-    User.findOne({ username }),
-  ]);
-
-  if (isEmailExist) {
-  }
-  // const dbRes = await User.findOne({ email });
-
-  console.log("dbRes -> " + JSON.stringify(dbRes));
+  const { username, email, password } = req.body;
 
   try {
+    const [isEmailExist, isUsernameExist] = await Promise.all([
+      User.findOne({ email }),
+      User.findOne({ username }),
+    ]);
+
+    let user =
+      isEmailExist !== null
+        ? isEmailExist
+        : isUsernameExist !== null
+        ? isUsernameExist
+        : null;
+
+    // let user = null;
+
+    // if (isEmailExist) {
+    //   user = isEmailExist;
+    // } else if (isUsernameExist) {
+    //   user = isUsernameExist;
+    // }
+
+    if (user) {
+      if (!user.password) {
+        return res.status(500).json({
+          code: 500,
+          key: "Error",
+          description: "User password not found",
+        });
+      }
+
+      // Validate the password using callback style
+      bcrypt.compare(password, user.password, function (err, isPasswordValid) {
+        if (err) {
+          return res.status(500).json({
+            code: 500,
+            key: "Error",
+            description: "Error validating password",
+          });
+        }
+
+        console.log("isPasswordValid -> " + isPasswordValid);
+
+        if (!isPasswordValid) {
+          return res.status(401).json({
+            code: 401,
+            key: "Error",
+            description: "Oops! Invalid password",
+          });
+        }
+
+        // Proceed with login count update and response
+        const loginCount = isNaN(user.loginCount) ? 0 : user.loginCount;
+
+        User.updateOne(
+          { _id: user._id },
+          { $set: { loginCount: loginCount + 1 } }
+        )
+          .then(() => {
+            return res.status(200).json({
+              code: 200,
+              description: `Hello ${user.firstName}!`,
+            });
+          })
+          .catch((err) => {
+            return res.status(500).json({
+              code: 500,
+              key: "Error",
+              error: err.toString(),
+              description: "Error in updating login count",
+            });
+          });
+      });
+    } else {
+      return res.status(404).json({
+        code: 404,
+        key: "Error",
+        description: "User not found",
+      });
+    }
   } catch (err) {
     return res.status(500).json({
       code: 500,
       key: "Error",
       error: err.toString(),
-      description: "Error logging user - @POST/login",
+      description: "Error in user login",
     });
   }
 };
