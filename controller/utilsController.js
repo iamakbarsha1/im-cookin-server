@@ -151,12 +151,13 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { emailUsername, password } = req.body;
 
+  console.log("req.body -> " + JSON.stringify(req.body));
   try {
     const [isEmailExist, isUsernameExist] = await Promise.all([
-      User.findOne({ email }),
-      User.findOne({ username }),
+      User.findOne({ email: emailUsername }),
+      User.findOne({ username: emailUsername }),
     ]);
 
     let user =
@@ -173,13 +174,12 @@ exports.login = async (req, res) => {
     // } else if (isUsernameExist) {
     //   user = isUsernameExist;
     // }
-
     if (user) {
       if (!user.password) {
         return res.status(500).json({
           code: 500,
           key: "Error",
-          description: "User password not found",
+          description: "Invalid credentials!",
         });
       }
 
@@ -189,7 +189,7 @@ exports.login = async (req, res) => {
           return res.status(500).json({
             code: 500,
             key: "Error",
-            description: "Error validating password",
+            description: "Error validating credentials",
           });
         }
 
@@ -199,7 +199,7 @@ exports.login = async (req, res) => {
           return res.status(401).json({
             code: 401,
             key: "Error",
-            description: "Oops! Invalid password",
+            description: "Oops! Invalid credentials",
           });
         }
 
@@ -229,7 +229,7 @@ exports.login = async (req, res) => {
       return res.status(404).json({
         code: 404,
         key: "Error",
-        description: "User not found",
+        description: "User not found!",
       });
     }
   } catch (err) {

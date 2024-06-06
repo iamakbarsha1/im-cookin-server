@@ -56,6 +56,7 @@ userSchema.pre("save", function (next) {
     if (err) return next(err);
 
     // Replace the plain text with the hash
+    // node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
     user.password = hash;
     next();
   });
