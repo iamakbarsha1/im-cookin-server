@@ -30,6 +30,9 @@ const userSchema = new mongoose.Schema(
     loginCount: {
       type: Number,
     },
+    token: {
+      type: String,
+    },
   },
   {
     timestamps: true,
