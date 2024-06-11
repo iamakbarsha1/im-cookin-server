@@ -6,6 +6,8 @@ const AuthRouter = require("./router/authRouter");
 const StreakRouter = require("./router/streaksRouter");
 const logger = require("./middleware/logger.middleware");
 const { swaggerDocs } = require("./swagger");
+const { checkAuthCookie } = require("./middleware/auth.middleware");
+const { validateToken } = require("./helpers/token");
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use(
   })
 );
 app.disable("x-powered-by"); // less hackers know about our stack
+// app.use(checkAuthCookie("token"));
+// app.use(validateToken());
 
 // Routes
 app.use(`/auth`, AuthRouter);
