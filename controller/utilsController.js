@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const User = require("../model/user.model");
+const { generateToken } = require("../helpers/token");
 
 exports.status = (req, res) => {
   return res.status(200).json({
@@ -206,16 +207,8 @@ exports.login = async (req, res) => {
         // Proceed with login count update and response
         const loginCount = isNaN(user.loginCount) ? 0 : user.loginCount;
 
-        const jwtSecretKey = process.env.JWT_SECRET;
-        const tokenData = {
-          time: Date(),
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          fullName: user.fullName,
-        };
         // Generate jwt token
-        const token = jwt.sign(tokenData, jwtSecretKey);
+        const token = generateToken(user);
 
         User.updateOne(
           { _id: user._id },
