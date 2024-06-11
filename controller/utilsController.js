@@ -219,7 +219,7 @@ exports.login = async (req, res) => {
 
         User.updateOne(
           { _id: user._id },
-          { $set: { loginCount: loginCount + 1 } }
+          { $set: { loginCount: loginCount + 1, token: token } }
         )
           .then(() => {
             return res.status(200).json({
