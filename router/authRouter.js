@@ -1,10 +1,12 @@
 const express = require("express");
 const AuthRouter = express.Router();
 const utilsController = require("../controller/utilsController");
+const authController = require("../controller/authController");
 
 /** Auth Methods */
-AuthRouter.get("/status", utilsController.status);
-AuthRouter.post("/oauth", utilsController.oauth);
+AuthRouter.get("/status", utilsController.status); // utils
+
+AuthRouter.post("/oauth", authController.oauth);
 
 /**
  * @openapi
@@ -39,7 +41,7 @@ AuthRouter.post("/oauth", utilsController.oauth);
  *      500:
  *        description: Server Error
  */
-AuthRouter.post("/register", utilsController.register);
-AuthRouter.post("/login", utilsController.login);
+AuthRouter.post("/register", authController.register);
+AuthRouter.post("/login", authController.login);
 
 module.exports = AuthRouter;
