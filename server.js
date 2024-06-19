@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const dbConnection = require("./db/db");
 const AuthRouter = require("./router/authRouter");
 const StreakRouter = require("./router/streaksRouter");
@@ -13,6 +14,7 @@ const app = express();
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser()); // cookie parser for token
 // app.use(logger);
 app.use(
   cors({
@@ -23,7 +25,6 @@ app.use(
 );
 app.disable("x-powered-by"); // less hackers know about our stack
 // app.use(checkAuthCookie("token"));
-// app.use(validateToken());
 
 // Routes
 app.use(`/auth`, AuthRouter);

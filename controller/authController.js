@@ -129,7 +129,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { emailUsername, password } = req.body;
 
-  console.log("req.body -> " + JSON.stringify(req.body));
+  console.log("req -> ", req.cookies);
   try {
     const [isEmailExist, isUsernameExist] = await Promise.all([
       User.findOne({ email: emailUsername }),
@@ -190,6 +190,7 @@ exports.login = async (req, res) => {
           { $set: { loginCount: loginCount + 1, token: token } }
         )
           .then(() => {
+            res.cookie("token", token, { httpOnly: true });
             return res.status(200).json({
               code: 200,
               description: `Hello ${user.firstName}!`,
