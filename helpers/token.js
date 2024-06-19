@@ -25,7 +25,26 @@ exports.generateToken = (user) => {
   return token;
 };
 
-exports.validateToken = (token) => {
-  const payload = JWT.verify(token, jwtSecretKey);
-  return payload;
+// exports.validateToken = (token) => {
+//   const payload = JWT.verify(token, jwtSecretKey);
+//   return payload;
+// };
+exports.validateToken = (req, res, next) => {
+  console.log("cookies ---> " + JSON.stringify(req));
+  const token = req.cookies.token;
+  if (!token)
+    return res.status(401).json({
+      code: 401,
+      description: "No token is provided!",
+    });
+  try {
+    const decoded = jwt.verify(token, jwtSecretKey);
+    req.user = decoded;
+    next();
+  } catch (e) {
+    return res.status(401).json({
+      code: 401,
+      description: "Invalid token",
+    });
+  }
 };
