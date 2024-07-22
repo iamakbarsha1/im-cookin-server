@@ -41,6 +41,7 @@ AuthRouter.post("/oauth", authController.oauth);
  *      500:
  *        description: Server Error
  */
+AuthRouter.post("/isEmailUsernameUnique", authController.isEmailUsernameUnique);
 AuthRouter.post("/register", authController.register);
 AuthRouter.post("/login", authController.login);
 
