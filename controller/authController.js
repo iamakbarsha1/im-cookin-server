@@ -126,6 +126,46 @@ exports.register = async (req, res) => {
   }
 };
 
+exports.isEmailUsernameUnique = async (req, res) => {
+  const { email, username } = req.body;
+  console.log("email: " + email);
+  console.log("username: " + username);
+
+  try {
+    const [emailUnique, usernameUnique] = await Promise.all([
+      email ? User.findOne({ email }) : null,
+      username ? User.findOne({ username }) : null,
+    ]);
+
+    if (email && emailUnique) {
+      return res.status(201).json({
+        code: 201,
+        description: `${email} - email already exists!`,
+      });
+    }
+
+    if (username && usernameUnique) {
+      return res.status(201).json({
+        code: 201,
+        description: `${username} - username already exists!`,
+      });
+    }
+
+    return res.status(200).json({
+      code: 200,
+      description: "The email/username can be created!",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      code: 500,
+      key: "Error",
+      error: err.toString(),
+      description:
+        "Error validating the unique email/username - @POST/isEmailUsernameUnique",
+    });
+  }
+};
+
 exports.login = async (req, res) => {
   const { emailUsername, password } = req.body;
 
