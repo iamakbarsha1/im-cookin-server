@@ -140,6 +140,7 @@ exports.isEmailUsernameUnique = async (req, res) => {
     if (email && emailUnique) {
       return res.status(201).json({
         code: 201,
+        type: "email",
         description: `${email} - email already exists!`,
       });
     }
@@ -147,6 +148,7 @@ exports.isEmailUsernameUnique = async (req, res) => {
     if (username && usernameUnique) {
       return res.status(201).json({
         code: 201,
+        type: "username",
         description: `${username} - username already exists!`,
       });
     }
